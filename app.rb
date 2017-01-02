@@ -50,7 +50,7 @@ get "/json/:key" do
   key = params["key"] || halt(400, "Need key")
 
   data = STORE.get("#{key}.full") || raise("Looks like #{key} is expired :(")
-  data
+  data.to_json
 end
 
 
