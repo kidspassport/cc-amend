@@ -49,7 +49,7 @@ get "/json/:key" do
   headers('Content-Type' => "application/json")
   key = params["key"] || halt(400, "Need key")
 
-  data = STORE.get("#{key}.full") || raise("Looks like #{partial_key} is expired :(")
+  data = STORE.get("#{key}.full") || raise("Looks like #{key} is expired :(")
   data
 end
 
