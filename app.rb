@@ -45,6 +45,14 @@ get "/" do
   "Welcome to cc-amend\nsource is at https://github.com/grosser/cc-amend\njust `curl -X POST --data-binary @report.json /amend/some_random_key?count=10&token=TOKEN` as much as you want\nand get it back with curl /amend/some_random_key\nand it will send 1 unified report to code-climate when done"
 end
 
+get "/json/:key" do
+  headers('Content-Type' => "application/json")
+  key = params["key"] || halt(400, "Need key")
+
+  data = STORE.get("#{key}.full") || raise("Looks like #{partial_key} is expired :(")
+  data
+end
+
 post "/amend/:key" do
   key = params["key"] || halt(400, "Need key")
   count = (params["count"] || halt(400, "Need count parameter")).to_i
@@ -79,6 +87,7 @@ post "/amend/:key" do
 
       with_token token do
         result = CodeclimateBatch.unify(files)
+        STORE.set("#{key}.full", result)
         client.post_results(result)
       end
       "sent #{count} reports for #{key}"
