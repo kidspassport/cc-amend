@@ -53,6 +53,13 @@ get "/json/:key" do
   data.to_json
 end
 
+get "/json/latest" do
+  headers('Content-Type' => "application/json")
+
+  data = STORE.get('latest.full') || raise("Looks like #{key} is expired :(")
+  data.to_json
+end
+
 
 post "/amend/:key" do
   key = params["key"] || halt(400, "Need key")
@@ -89,6 +96,7 @@ post "/amend/:key" do
       with_token token do
         result = CodeclimateBatch.unify(files)
         STORE.set("#{key}.full", result)
+        STORE.set("latest.full", result)
         client.post_results(result)
       end
       "sent #{count} reports for #{key}"
